@@ -16,17 +16,24 @@ router.get('/', (req: express.Request, res: express.Response) => {
   res.json({ message: 'API is working!' });
 });
 
-router.get('/bears', async (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('getBears');
-  const params = {
-    TableName: tableName,
-  };
-  console.log(params);
-  const result = await docClient.scan(params).promise();
-
-  res.send(result.Items);
-});
+router.get(
+  '/bears',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const params = {
+      TableName: tableName,
+    };
+    try {
+      const result = await docClient.scan(params).promise();
+      res.json(result.Items);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.post('/bears', (req: express.Request, res: express.Response) => {
   // TODO 実装
@@ -34,11 +41,29 @@ router.post('/bears', (req: express.Request, res: express.Response) => {
   res.json({ name: 'Taro' });
 });
 
-router.get('/bears/:id', (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('getBears/id');
-  res.json({ name: req.params.id });
-});
+router.get(
+  '/bears/:id',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const bearId: string = req.params.id;
+    const params = {
+      TableName: tableName,
+      Key: { id: bearId },
+    };
+    try {
+      const result = await docClient.get(params).promise();
+      if (Object.keys(result).length === 0) {
+        res.status(404).json('Sorry cant find that!');
+      }
+      res.json(result.Item);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.put('/bears/:id', (req: express.Request, res: express.Response) => {
   // TODO 実装
@@ -51,5 +76,17 @@ router.delete('/bears/:id', (req: express.Request, res: express.Response) => {
   console.log('deleteBears/id');
   res.json({ name: req.params.id });
 });
+
+router.use(
+  (
+    err: express.Errback,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err);
+    res.status(500).json('Internal Server Error');
+  }
+);
 
 module.exports = router;
