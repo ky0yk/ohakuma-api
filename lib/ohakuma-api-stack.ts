@@ -7,10 +7,14 @@ export class OhakumaApiStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const tableName = 'ohakumaTable';
     // The code that defines your stack goes here
     const appLambda = new NodejsFunction(this, 'appLambda', {
       entry: 'src/lambda/handler/index.ts',
       handler: 'handler',
+      environment: {
+        tableName: tableName,
+      },
     });
 
     new apigw.LambdaRestApi(this, 'ohakumaApi', {
@@ -18,6 +22,7 @@ export class OhakumaApiStack extends cdk.Stack {
     });
 
     const table = new dynamodb.Table(this, 'ohakumaTable', {
+      tableName: tableName,
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
