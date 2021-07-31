@@ -16,17 +16,24 @@ router.get('/', (req: express.Request, res: express.Response) => {
   res.json({ message: 'API is working!' });
 });
 
-router.get('/bears', async (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('getBears');
-  const params = {
-    TableName: tableName,
-  };
-  console.log(params);
-  const result = await docClient.scan(params).promise();
-
-  res.send(result.Items);
-});
+router.get(
+  '/bears',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const params = {
+      TableName: tableName,
+    };
+    try {
+      const result = await docClient.scan(params).promise();
+      res.json(result.Items);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.post('/bears', (req: express.Request, res: express.Response) => {
   // TODO 実装
@@ -51,5 +58,17 @@ router.delete('/bears/:id', (req: express.Request, res: express.Response) => {
   console.log('deleteBears/id');
   res.json({ name: req.params.id });
 });
+
+router.use(
+  (
+    err: express.Errback,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+);
 
 module.exports = router;
