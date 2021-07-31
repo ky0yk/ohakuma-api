@@ -124,6 +124,21 @@
     constructs "^3.3.69"
     punycode "^2.1.1"
 
+"@aws-cdk/aws-dynamodb@^1.116.0":
+  version "1.116.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.116.0.tgz#be3e4fc6d7135f5d30b151c5a82c91dddc5f132d"
+  integrity sha512-c9JFgeQH2QdGxeyP8KrE0sHJ5D8Zd93emWKHGndK9GyUjCuKz6fIBPd6GF90vaF9YqlbDh1vtcYYAaMqtNFBrQ==
+  dependencies:
+    "@aws-cdk/aws-applicationautoscaling" "1.116.0"
+    "@aws-cdk/aws-cloudwatch" "1.116.0"
+    "@aws-cdk/aws-iam" "1.116.0"
+    "@aws-cdk/aws-kinesis" "1.116.0"
+    "@aws-cdk/aws-kms" "1.116.0"
+    "@aws-cdk/aws-lambda" "1.116.0"
+    "@aws-cdk/core" "1.116.0"
+    "@aws-cdk/custom-resources" "1.116.0"
+    constructs "^3.3.69"
+
 "@aws-cdk/aws-ec2@1.116.0":
   version "1.116.0"
   resolved "https://registry.npmjs.org/@aws-cdk/aws-ec2/-/aws-ec2-1.116.0.tgz"
@@ -212,6 +227,18 @@
   dependencies:
     "@aws-cdk/core" "1.116.0"
     "@aws-cdk/region-info" "1.116.0"
+    constructs "^3.3.69"
+
+"@aws-cdk/aws-kinesis@1.116.0":
+  version "1.116.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kinesis/-/aws-kinesis-1.116.0.tgz#5472871a727ee5bfbc5648b30490ff115fc48fb0"
+  integrity sha512-AjejXg4L4OgwdY7xHoffy3QogDWy1ajB65AA9n6TTjHhR3Fvk2d8HQ6vmoOJwZ+VI+nb6p3rTTlyKk4rG69vrA==
+  dependencies:
+    "@aws-cdk/aws-cloudwatch" "1.116.0"
+    "@aws-cdk/aws-iam" "1.116.0"
+    "@aws-cdk/aws-kms" "1.116.0"
+    "@aws-cdk/aws-logs" "1.116.0"
+    "@aws-cdk/core" "1.116.0"
     constructs "^3.3.69"
 
 "@aws-cdk/aws-kms@1.116.0":
@@ -1354,6 +1381,21 @@ aws-sdk@^2.848.0:
   version "2.950.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.950.0.tgz#cffb65590c50de9479c87ed04df57d355d1d8a22"
   integrity sha512-iFC5fKLuFLEV27xeKmxDHDZzIDj4upm5+Ts3NpYYRbwPlOG0nE0gZzf9fRYkLkLgTr0TQq26CbKorgeo+6ailw==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@^2.958.0:
+  version "2.958.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.958.0.tgz#c28b1cf98c93fc3401b47b9d4ac00083f4f9176c"
+  integrity sha512-D5/2mW+hl5+CYvAniB209VUN3lFo7ZypCdO0RxyKG49DjoB+h3wvNxJo/BKL3A0sSiMOlrT61vDWsmkeE34S/g==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
