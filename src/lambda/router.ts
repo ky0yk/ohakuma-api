@@ -7,9 +7,9 @@ const docClient = new AWS.DynamoDB.DocumentClient({
   region: 'ap-northeast-1',
 });
 
-const tableName: string = process.env.TABLE_NAME ? process.env.TABLE_NAME : '';
+const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
-  new Error('テーブル名を取得できませんでした。'); //TODO チェックが効いてないのを直す
+  throw new Error('テーブル名を取得できませんでした。');
 }
 
 router.get('/', (req: express.Request, res: express.Response) => {
