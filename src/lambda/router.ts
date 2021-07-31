@@ -1,14 +1,31 @@
 import express = require('express');
 const router: express.Router = express.Router();
 
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+  region: 'ap-northeast-1',
+});
+
+const tableName: string = process.env.TABLE_NAME ? process.env.TABLE_NAME : '';
+if (!tableName) {
+  new Error('テーブル名を取得できませんでした。'); //TODO チェックが効いてないのを直す
+}
+
 router.get('/', (req: express.Request, res: express.Response) => {
   res.json({ message: 'API is working!' });
 });
 
-router.get('/bears', (req: express.Request, res: express.Response) => {
+router.get('/bears', async (req: express.Request, res: express.Response) => {
   // TODO 実装
   console.log('getBears');
-  res.json([{ name: 'Taro' }, { name: 'Hanako' }]);
+  const params = {
+    TableName: tableName,
+  };
+  console.log(params);
+  const result = await docClient.scan(params).promise();
+
+  res.send(result.Items);
 });
 
 router.post('/bears', (req: express.Request, res: express.Response) => {

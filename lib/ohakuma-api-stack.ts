@@ -13,7 +13,7 @@ export class OhakumaApiStack extends cdk.Stack {
       entry: 'src/lambda/handler/index.ts',
       handler: 'handler',
       environment: {
-        tableName: tableName,
+        TABLE_NAME: tableName,
       },
     });
 
