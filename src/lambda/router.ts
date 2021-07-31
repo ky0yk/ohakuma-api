@@ -41,11 +41,29 @@ router.post('/bears', (req: express.Request, res: express.Response) => {
   res.json({ name: 'Taro' });
 });
 
-router.get('/bears/:id', (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('getBears/id');
-  res.json({ name: req.params.id });
-});
+router.get(
+  '/bears/:id',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const bearId: string = req.params.id;
+    const params = {
+      TableName: tableName,
+      Key: { id: bearId },
+    };
+    try {
+      const result = await docClient.get(params).promise();
+      if (Object.keys(result).length === 0) {
+        res.status(404).json('Sorry cant find that!');
+      }
+      res.json(result.Item);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.put('/bears/:id', (req: express.Request, res: express.Response) => {
   // TODO 実装
@@ -67,7 +85,7 @@ router.use(
     next: express.NextFunction
   ) => {
     console.error(err);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json('Internal Server Error');
   }
 );
 
