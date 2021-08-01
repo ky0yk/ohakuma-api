@@ -1,5 +1,9 @@
 import express = require('express');
 const router: express.Router = express.Router();
+const { check, validationResult } = require('express-validator');
+router.use(express.json());
+
+import { v4 as uuidv4 } from 'uuid';
 
 const AWS = require('aws-sdk');
 
@@ -35,11 +39,37 @@ router.get(
   }
 );
 
-router.post('/bears', (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('postBears');
-  res.json({ name: 'Taro' });
-});
+router.post(
+  '/bears',
+  [check('name').isString().trim().notEmpty()],
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    //　バリデーション
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+    }
+
+    // UUIDの付与
+    const item = req.body;
+    item.id = uuidv4();
+
+    // DynamoDBへの登録
+    const params = {
+      TableName: tableName,
+      Item: item,
+    };
+    try {
+      const result = await docClient.put(params).promise();
+      res.status(201).json(item);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.get(
   '/bears/:id',
