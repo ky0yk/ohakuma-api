@@ -138,11 +138,31 @@ router.put(
   }
 );
 
-router.delete('/bears/:id', (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('deleteBears/id');
-  res.json({ name: req.params.id });
-});
+router.delete(
+  '/bears/:id',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const params = {
+      TableName: tableName,
+      Key: {
+        id: req.params.id,
+      },
+      ReturnValues: 'ALL_OLD',
+    };
+
+    try {
+      const result = await docClient.delete(params).promise();
+      Object.keys(result).length === 0
+        ? res.status(404).json('Sorry cant find that!')
+        : res.status(200).json(result.Attributes);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.use(
   (
