@@ -1,4 +1,5 @@
 import express = require('express');
+import { body, checkSchema } from 'express-validator';
 const router: express.Router = express.Router();
 const { check, validationResult } = require('express-validator');
 router.use(express.json());
@@ -95,11 +96,47 @@ router.get(
   }
 );
 
-router.put('/bears/:id', (req: express.Request, res: express.Response) => {
-  // TODO 実装
-  console.log('putBears/id');
-  res.json({ name: req.params.id });
-});
+router.put(
+  '/bears/:id',
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    //　TODO バリデーション
+    // クエリの組み立て
+    const updateExpression = Object.keys(req.body).map(
+      (key) => `#att_${key} =:${key}`
+    );
+
+    const expressionAttributeNames = Object.fromEntries(
+      Object.entries(req.body).map(([k, v]) => [`#att_${k}`, k])
+    );
+
+    const expressionAttributeValues = Object.fromEntries(
+      Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
+    );
+
+    const params = {
+      TableName: tableName,
+      Key: {
+        id: req.params.id,
+      },
+      UpdateExpression: `set ${updateExpression.join()}`,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: 'ALL_NEW',
+    };
+
+    try {
+      // console.log(params);
+      const result = await docClient.update(params).promise();
+      res.status(200).json(result.Attributes);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.delete('/bears/:id', (req: express.Request, res: express.Response) => {
   // TODO 実装
@@ -109,13 +146,13 @@ router.delete('/bears/:id', (req: express.Request, res: express.Response) => {
 
 router.use(
   (
-    err: express.Errback,
+    err: any,
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
     console.error(err);
-    res.status(500).json('Internal Server Error');
+    res.status(err.statusCode).json(err.message);
   }
 );
 
