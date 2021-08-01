@@ -126,7 +126,7 @@
 
 "@aws-cdk/aws-dynamodb@^1.116.0":
   version "1.116.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.116.0.tgz#be3e4fc6d7135f5d30b151c5a82c91dddc5f132d"
+  resolved "https://registry.npmjs.org/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.116.0.tgz"
   integrity sha512-c9JFgeQH2QdGxeyP8KrE0sHJ5D8Zd93emWKHGndK9GyUjCuKz6fIBPd6GF90vaF9YqlbDh1vtcYYAaMqtNFBrQ==
   dependencies:
     "@aws-cdk/aws-applicationautoscaling" "1.116.0"
@@ -231,7 +231,7 @@
 
 "@aws-cdk/aws-kinesis@1.116.0":
   version "1.116.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kinesis/-/aws-kinesis-1.116.0.tgz#5472871a727ee5bfbc5648b30490ff115fc48fb0"
+  resolved "https://registry.npmjs.org/@aws-cdk/aws-kinesis/-/aws-kinesis-1.116.0.tgz"
   integrity sha512-AjejXg4L4OgwdY7xHoffy3QogDWy1ajB65AA9n6TTjHhR3Fvk2d8HQ6vmoOJwZ+VI+nb6p3rTTlyKk4rG69vrA==
   dependencies:
     "@aws-cdk/aws-cloudwatch" "1.116.0"
@@ -961,22 +961,22 @@
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@tsconfig/node10/-/node10-1.0.8.tgz#c1e4e80d6f964fbecb3359c43bd48b40f7cadad9"
+  resolved "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.8.tgz"
   integrity sha512-6XFfSQmMgq0CFLY1MslA/CPUfhIL919M1rMsa5lP2P097N2Wd1sSX0tx1u4olM16fLNhtHZpRhedZJphNJqmZg==
 
 "@tsconfig/node12@^1.0.7":
   version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@tsconfig/node12/-/node12-1.0.9.tgz#62c1f6dee2ebd9aead80dc3afa56810e58e1a04c"
+  resolved "https://registry.npmjs.org/@tsconfig/node12/-/node12-1.0.9.tgz"
   integrity sha512-/yBMcem+fbvhSREH+s14YJi18sp7J9jpuhYByADT2rypfajMZZN4WQ6zBGgBKp53NKmqI36wFYDb3yaMPurITw==
 
 "@tsconfig/node14@^1.0.0":
   version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@tsconfig/node14/-/node14-1.0.1.tgz#95f2d167ffb9b8d2068b0b235302fafd4df711f2"
+  resolved "https://registry.npmjs.org/@tsconfig/node14/-/node14-1.0.1.tgz"
   integrity sha512-509r2+yARFfHHE7T6Puu2jjkoycftovhXRqW328PDXTVGKihlb1P8Z9mMZH04ebyajfRY7dedfGynlrFHJUQCg==
 
 "@tsconfig/node16@^1.0.1":
   version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.2.tgz#423c77877d0569db20e1fc80885ac4118314010e"
+  resolved "https://registry.npmjs.org/@tsconfig/node16/-/node16-1.0.2.tgz"
   integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
 
 "@types/aws-lambda@^8.10.81":
@@ -1132,6 +1132,11 @@
   version "2.0.1"
   resolved "https://registry.npmjs.org/@types/stack-utils/-/stack-utils-2.0.1.tgz"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
+
+"@types/uuid@^8.3.1":
+  version "8.3.1"
+  resolved "https://registry.npmjs.org/@types/uuid/-/uuid-8.3.1.tgz"
+  integrity sha512-Y2mHTRAbqfFkpjldbkHGY8JIzRN6XqYRliG8/24FcHm2D2PwW24fl5xMRTVGdrb7iMrwCaIEbLWerGIkXuFWVg==
 
 "@types/yargs-parser@*":
   version "20.2.1"
@@ -1394,7 +1399,7 @@ aws-sdk@^2.848.0:
 
 aws-sdk@^2.958.0:
   version "2.958.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.958.0.tgz#c28b1cf98c93fc3401b47b9d4ac00083f4f9176c"
+  resolved "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.958.0.tgz"
   integrity sha512-D5/2mW+hl5+CYvAniB209VUN3lFo7ZypCdO0RxyKG49DjoB+h3wvNxJo/BKL3A0sSiMOlrT61vDWsmkeE34S/g==
   dependencies:
     buffer "4.9.2"
@@ -2252,6 +2257,14 @@ expect@^26.6.2:
     jest-matcher-utils "^26.6.2"
     jest-message-util "^26.6.2"
     jest-regex-util "^26.0.0"
+
+express-validator@^6.12.1:
+  version "6.12.1"
+  resolved "https://registry.yarnpkg.com/express-validator/-/express-validator-6.12.1.tgz#2ff698ff6f9af436cb08913b5b26849e43f34031"
+  integrity sha512-olpTAv0ZB5IhNuDQ2rodKAuJsewgFgLIsczJMAWD6T0Yvxsa+j/Hk61jl8e26lAq+oJr6hUqPRjdlOBKhFlWeQ==
+  dependencies:
+    lodash "^4.17.21"
+    validator "^13.5.2"
 
 express@^4.17.1:
   version "4.17.1"
@@ -3499,7 +3512,7 @@ lodash.union@^4.6.0:
   resolved "https://registry.yarnpkg.com/lodash.union/-/lodash.union-4.6.0.tgz#48bb5088409f16f1821666641c44dd1aaae3cd88"
   integrity sha1-SLtQiECfFvGCFmZkHETdGqrjzYg=
 
-lodash@4.x, lodash@^4.7.0:
+lodash@4.x, lodash@^4.17.21, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -4773,7 +4786,7 @@ ts-jest@^26.2.0:
 
 ts-node@^10.1.0:
   version "10.1.0"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.1.0.tgz#e656d8ad3b61106938a867f69c39a8ba6efc966e"
+  resolved "https://registry.npmjs.org/ts-node/-/ts-node-10.1.0.tgz"
   integrity sha512-6szn3+J9WyG2hE+5W8e0ruZrzyk1uFLYye6IGMBadnOzDh8aP7t8CbFpsfCiEx2+wMixAhjFt7lOZC4+l+WbEA==
   dependencies:
     "@tsconfig/node10" "^1.0.7"
@@ -4933,6 +4946,11 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
+
+validator@^13.5.2:
+  version "13.6.0"
+  resolved "https://registry.yarnpkg.com/validator/-/validator-13.6.0.tgz#1e71899c14cdc7b2068463cb24c1cc16f6ec7059"
+  integrity sha512-gVgKbdbHgtxpRyR8K0O6oFZPhhB5tT1jeEHZR0Znr9Svg03U0+r9DXWMrnRAB+HtCStDQKlaIZm42tVsVjqtjg==
 
 vary@~1.1.2:
   version "1.1.2"
