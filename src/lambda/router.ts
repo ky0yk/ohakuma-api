@@ -1,16 +1,31 @@
 import express = require('express');
-import { body, checkSchema } from 'express-validator';
+import {
+  DeleteCommand,
+  GetCommand,
+  PutCommand,
+  DynamoDBDocumentClient,
+  UpdateCommand,
+  PutCommandOutput,
+  GetCommandOutput,
+  UpdateCommandOutput,
+  DeleteCommandOutput,
+  ScanCommandInput,
+  ScanCommand,
+  ScanCommandOutput,
+  PutCommandInput,
+  GetCommandInput,
+  UpdateCommandInput,
+  DeleteCommandInput,
+} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
+
 const router: express.Router = express.Router();
 const { check, validationResult } = require('express-validator');
 router.use(express.json());
 
-import { v4 as uuidv4 } from 'uuid';
-
-const AWS = require('aws-sdk');
-
-const docClient = new AWS.DynamoDB.DocumentClient({
-  region: 'ap-northeast-1',
-});
+const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
@@ -28,11 +43,13 @@ router.get(
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const params = {
+    const params: ScanCommandInput = {
       TableName: tableName,
     };
     try {
-      const result = await docClient.scan(params).promise();
+      const result: ScanCommandOutput = await ddbDocClient.send(
+        new ScanCommand(params)
+      );
       res.json(result.Items);
     } catch (err) {
       next(err);
@@ -53,18 +70,18 @@ router.post(
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
     }
-
     // UUIDの付与
     const item = req.body;
     item.id = uuidv4();
-
     // DynamoDBへの登録
-    const params = {
+    const params: PutCommandInput = {
       TableName: tableName,
       Item: item,
     };
     try {
-      const result = await docClient.put(params).promise();
+      const result: PutCommandOutput = await ddbDocClient.send(
+        new PutCommand(params)
+      );
       res.status(201).json(item);
     } catch (err) {
       next(err);
@@ -79,17 +96,17 @@ router.get(
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const bearId: string = req.params.id;
-    const params = {
+    const params: GetCommandInput = {
       TableName: tableName,
-      Key: { id: bearId },
+      Key: { id: req.params.id },
     };
     try {
-      const result = await docClient.get(params).promise();
-      if (Object.keys(result).length === 0) {
-        res.status(404).json('Sorry cant find that!');
-      }
-      res.json(result.Item);
+      const result: GetCommandOutput = await ddbDocClient.send(
+        new GetCommand(params)
+      );
+      result.Item
+        ? res.json(result.Item)
+        : res.status(404).json('Sorry cant find that!');
     } catch (err) {
       next(err);
     }
@@ -117,7 +134,7 @@ router.put(
       Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
     );
 
-    const params = {
+    const params: UpdateCommandInput = {
       TableName: tableName,
       Key: {
         id: req.params.id,
@@ -130,7 +147,9 @@ router.put(
 
     try {
       // console.log(params);
-      const result = await docClient.update(params).promise();
+      const result: UpdateCommandOutput = await ddbDocClient.send(
+        new UpdateCommand(params)
+      );
       res.status(200).json(result.Attributes);
     } catch (err) {
       next(err);
@@ -145,7 +164,7 @@ router.delete(
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const params = {
+    const params: DeleteCommandInput = {
       TableName: tableName,
       Key: {
         id: req.params.id,
@@ -154,10 +173,13 @@ router.delete(
     };
 
     try {
-      const result = await docClient.delete(params).promise();
-      Object.keys(result).length === 0
-        ? res.status(404).json('Sorry cant find that!')
-        : res.status(200).json(result.Attributes);
+      const result: DeleteCommandOutput = await ddbDocClient.send(
+        new DeleteCommand(params)
+      );
+      console.log(result);
+      result.Attributes
+        ? res.status(200).json(result.Attributes)
+        : res.status(404).json('Sorry cant find that!');
     } catch (err) {
       next(err);
     }
