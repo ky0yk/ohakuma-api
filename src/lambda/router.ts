@@ -1,4 +1,6 @@
 import express = require('express');
+import { Router, Request, Response, NextFunction } from 'express';
+
 import {
   DeleteCommand,
   GetCommand,
@@ -20,7 +22,7 @@ import {
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
-const router: express.Router = express.Router();
+const router: Router = express.Router();
 const { check, validationResult } = require('express-validator');
 router.use(express.json());
 
@@ -32,17 +34,13 @@ if (!tableName) {
   throw new Error('テーブル名を取得できませんでした。');
 }
 
-router.get('/', (req: express.Request, res: express.Response) => {
+router.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is working!' });
 });
 
 router.get(
   '/bears',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const params: ScanCommandInput = {
       TableName: tableName,
     };
@@ -60,11 +58,7 @@ router.get(
 router.post(
   '/bears',
   [check('name').isString().trim().notEmpty()],
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     //　バリデーション
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -91,11 +85,7 @@ router.post(
 
 router.get(
   '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const params: GetCommandInput = {
       TableName: tableName,
       Key: { id: req.params.id },
@@ -115,25 +105,19 @@ router.get(
 
 router.put(
   '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     //　TODO バリデーション
     // クエリの組み立て
     const updateExpression = Object.keys(req.body).map(
       (key) => `#att_${key} =:${key}`
     );
-
     const expressionAttributeNames = Object.fromEntries(
       Object.entries(req.body).map(([k, v]) => [`#att_${k}`, k])
     );
-
     const expressionAttributeValues = Object.fromEntries(
       Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
     );
-
+    // DynamoDBへの登録
     const params: UpdateCommandInput = {
       TableName: tableName,
       Key: {
@@ -144,9 +128,7 @@ router.put(
       ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: 'ALL_NEW',
     };
-
     try {
-      // console.log(params);
       const result: UpdateCommandOutput = await ddbDocClient.send(
         new UpdateCommand(params)
       );
@@ -159,11 +141,7 @@ router.put(
 
 router.delete(
   '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const params: DeleteCommandInput = {
       TableName: tableName,
       Key: {
@@ -171,12 +149,10 @@ router.delete(
       },
       ReturnValues: 'ALL_OLD',
     };
-
     try {
       const result: DeleteCommandOutput = await ddbDocClient.send(
         new DeleteCommand(params)
       );
-      console.log(result);
       result.Attributes
         ? res.status(200).json(result.Attributes)
         : res.status(404).json('Sorry cant find that!');
@@ -186,16 +162,8 @@ router.delete(
   }
 );
 
-router.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err);
-    res.status(err.statusCode).json(err.message);
-  }
-);
+router.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(500).json('Internal Server Error');
+});
 
 module.exports = router;
