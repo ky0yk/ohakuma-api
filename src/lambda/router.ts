@@ -1,7 +1,6 @@
 import express = require('express');
 import { Router, Request, Response, NextFunction } from 'express';
 import { body, check, Result, validationResult } from 'express-validator';
-import { v4 as uuidv4 } from 'uuid';
 import * as ddb from './lib/database';
 
 const router: Router = express.Router();
@@ -35,34 +34,24 @@ router.get(
   }
 );
 
-// router.post(
-//   '/bears',
-//   [check('name').isString().trim().notEmpty()],
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     //　バリデーション
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       res.status(400).json({ errors: errors.array() });
-//       return;
-//     }
-//     // UUIDの付与
-//     const item = req.body;
-//     item.id = uuidv4();
-//     // DynamoDBへの登録
-//     const params: ddbLib.PutCommandInput = {
-//       TableName: tableName,
-//       Item: item,
-//     };
-//     try {
-//       const result: ddbLib.PutCommandOutput = await ddbDocClient.send(
-//         new ddbLib.PutCommand(params)
-//       );
-//       res.status(201).json(item);
-//     } catch (err) {
-//       next(err);
-//     }
-//   }
-// );
+router.post(
+  '/bears',
+  [check('name').isString().trim().notEmpty()],
+  async (req: Request, res: Response, next: NextFunction) => {
+    //　バリデーション
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+    try {
+      const result = await ddb.createBear(req.body);
+      res.status(201).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 // router.put(
 //   '/bears/:id',
