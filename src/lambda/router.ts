@@ -1,24 +1,7 @@
 import express = require('express');
 import { Router, Request, Response, NextFunction } from 'express';
 
-import {
-  DeleteCommand,
-  GetCommand,
-  PutCommand,
-  DynamoDBDocumentClient,
-  UpdateCommand,
-  PutCommandOutput,
-  GetCommandOutput,
-  UpdateCommandOutput,
-  DeleteCommandOutput,
-  ScanCommandInput,
-  ScanCommand,
-  ScanCommandOutput,
-  PutCommandInput,
-  GetCommandInput,
-  UpdateCommandInput,
-  DeleteCommandInput,
-} from '@aws-sdk/lib-dynamodb';
+import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,7 +10,7 @@ const { check, validationResult } = require('express-validator');
 router.use(express.json());
 
 const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+const ddbDocClient = ddbLib.DynamoDBDocumentClient.from(ddbClient);
 
 const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
@@ -41,12 +24,12 @@ router.get('/', (req: Request, res: Response) => {
 router.get(
   '/bears',
   async (req: Request, res: Response, next: NextFunction) => {
-    const params: ScanCommandInput = {
+    const params: ddbLib.ScanCommandInput = {
       TableName: tableName,
     };
     try {
-      const result: ScanCommandOutput = await ddbDocClient.send(
-        new ScanCommand(params)
+      const result: ddbLib.ScanCommandOutput = await ddbDocClient.send(
+        new ddbLib.ScanCommand(params)
       );
       res.json(result.Items);
     } catch (err) {
@@ -68,13 +51,13 @@ router.post(
     const item = req.body;
     item.id = uuidv4();
     // DynamoDBへの登録
-    const params: PutCommandInput = {
+    const params: ddbLib.PutCommandInput = {
       TableName: tableName,
       Item: item,
     };
     try {
-      const result: PutCommandOutput = await ddbDocClient.send(
-        new PutCommand(params)
+      const result: ddbLib.PutCommandOutput = await ddbDocClient.send(
+        new ddbLib.PutCommand(params)
       );
       res.status(201).json(item);
     } catch (err) {
@@ -86,13 +69,13 @@ router.post(
 router.get(
   '/bears/:id',
   async (req: Request, res: Response, next: NextFunction) => {
-    const params: GetCommandInput = {
+    const params: ddbLib.GetCommandInput = {
       TableName: tableName,
       Key: { id: req.params.id },
     };
     try {
-      const result: GetCommandOutput = await ddbDocClient.send(
-        new GetCommand(params)
+      const result: ddbLib.GetCommandOutput = await ddbDocClient.send(
+        new ddbLib.GetCommand(params)
       );
       result.Item
         ? res.json(result.Item)
@@ -118,7 +101,7 @@ router.put(
       Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
     );
     // DynamoDBへの登録
-    const params: UpdateCommandInput = {
+    const params: ddbLib.UpdateCommandInput = {
       TableName: tableName,
       Key: {
         id: req.params.id,
@@ -129,8 +112,8 @@ router.put(
       ReturnValues: 'ALL_NEW',
     };
     try {
-      const result: UpdateCommandOutput = await ddbDocClient.send(
-        new UpdateCommand(params)
+      const result: ddbLib.UpdateCommandOutput = await ddbDocClient.send(
+        new ddbLib.UpdateCommand(params)
       );
       res.status(200).json(result.Attributes);
     } catch (err) {
@@ -142,7 +125,7 @@ router.put(
 router.delete(
   '/bears/:id',
   async (req: Request, res: Response, next: NextFunction) => {
-    const params: DeleteCommandInput = {
+    const params: ddbLib.DeleteCommandInput = {
       TableName: tableName,
       Key: {
         id: req.params.id,
@@ -150,8 +133,8 @@ router.delete(
       ReturnValues: 'ALL_OLD',
     };
     try {
-      const result: DeleteCommandOutput = await ddbDocClient.send(
-        new DeleteCommand(params)
+      const result: ddbLib.DeleteCommandOutput = await ddbDocClient.send(
+        new ddbLib.DeleteCommand(params)
       );
       result.Attributes
         ? res.status(200).json(result.Attributes)
