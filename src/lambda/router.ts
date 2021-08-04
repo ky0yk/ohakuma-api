@@ -1,13 +1,11 @@
 import express = require('express');
 import { Router, Request, Response, NextFunction } from 'express';
-
+import { body, check, validationResult } from 'express-validator';
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { body } from 'express-validator';
 
 const router: Router = express.Router();
-const { check, validationResult } = require('express-validator');
 router.use(express.json());
 
 const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
@@ -47,6 +45,7 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      return;
     }
     // UUIDの付与
     const item = req.body;
