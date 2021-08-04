@@ -4,6 +4,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
+import { body } from 'express-validator';
 
 const router: Router = express.Router();
 const { check, validationResult } = require('express-validator');
@@ -88,8 +89,17 @@ router.get(
 
 router.put(
   '/bears/:id',
+  [
+    body('id').not().exists(),
+    body('name').if(body('name').exists()).notEmpty().isString(),
+  ],
   async (req: Request, res: Response, next: NextFunction) => {
-    //　TODO バリデーション
+    //　バリデーション
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
     // クエリの組み立て
     const updateExpression = Object.keys(req.body).map(
       (key) => `#att_${key} =:${key}`
