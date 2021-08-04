@@ -1,71 +1,22 @@
 import express = require('express');
-import { body, checkSchema } from 'express-validator';
-const router: express.Router = express.Router();
-const { check, validationResult } = require('express-validator');
+import { Router, Request, Response, NextFunction } from 'express';
+import { body, check, Result, validationResult } from 'express-validator';
+import { v4 as uuidv4 } from 'uuid';
+import * as ddb from './lib/database';
+
+const router: Router = express.Router();
 router.use(express.json());
 
-import { v4 as uuidv4 } from 'uuid';
-
-const AWS = require('aws-sdk');
-
-const docClient = new AWS.DynamoDB.DocumentClient({
-  region: 'ap-northeast-1',
-});
-
-const tableName: string | undefined = process.env.TABLE_NAME;
-if (!tableName) {
-  throw new Error('テーブル名を取得できませんでした。');
-}
-
-router.get('/', (req: express.Request, res: express.Response) => {
+router.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is working!' });
 });
 
 router.get(
   '/bears',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const params = {
-      TableName: tableName,
-    };
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await docClient.scan(params).promise();
-      res.json(result.Items);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-router.post(
-  '/bears',
-  [check('name').isString().trim().notEmpty()],
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    //　バリデーション
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-    }
-
-    // UUIDの付与
-    const item = req.body;
-    item.id = uuidv4();
-
-    // DynamoDBへの登録
-    const params = {
-      TableName: tableName,
-      Item: item,
-    };
-    try {
-      const result = await docClient.put(params).promise();
-      res.status(201).json(item);
+      const result = await ddb.getAllBears();
+      res.json(result);
     } catch (err) {
       next(err);
     }
@@ -74,106 +25,115 @@ router.post(
 
 router.get(
   '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const bearId: string = req.params.id;
-    const params = {
-      TableName: tableName,
-      Key: { id: bearId },
-    };
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await docClient.get(params).promise();
-      if (Object.keys(result).length === 0) {
-        res.status(404).json('Sorry cant find that!');
-      }
-      res.json(result.Item);
+      const result = await ddb.getBear(req.params.id);
+      result ? res.json(result) : res.status(404).json('Sorry cant find that!');
     } catch (err) {
       next(err);
     }
   }
 );
 
-router.put(
-  '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    //　TODO バリデーション
-    // クエリの組み立て
-    const updateExpression = Object.keys(req.body).map(
-      (key) => `#att_${key} =:${key}`
-    );
+// router.post(
+//   '/bears',
+//   [check('name').isString().trim().notEmpty()],
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     //　バリデーション
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       res.status(400).json({ errors: errors.array() });
+//       return;
+//     }
+//     // UUIDの付与
+//     const item = req.body;
+//     item.id = uuidv4();
+//     // DynamoDBへの登録
+//     const params: ddbLib.PutCommandInput = {
+//       TableName: tableName,
+//       Item: item,
+//     };
+//     try {
+//       const result: ddbLib.PutCommandOutput = await ddbDocClient.send(
+//         new ddbLib.PutCommand(params)
+//       );
+//       res.status(201).json(item);
+//     } catch (err) {
+//       next(err);
+//     }
+//   }
+// );
 
-    const expressionAttributeNames = Object.fromEntries(
-      Object.entries(req.body).map(([k, v]) => [`#att_${k}`, k])
-    );
+// router.put(
+//   '/bears/:id',
+//   [
+//     body('id').not().exists(),
+//     body('name').if(body('name').exists()).notEmpty().isString(),
+//   ],
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     //　バリデーション
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       res.status(400).json({ errors: errors.array() });
+//       return;
+//     }
+//     // クエリの組み立て
+//     const updateExpression = Object.keys(req.body).map(
+//       (key) => `#att_${key} =:${key}`
+//     );
+//     const expressionAttributeNames = Object.fromEntries(
+//       Object.entries(req.body).map(([k, v]) => [`#att_${k}`, k])
+//     );
+//     const expressionAttributeValues = Object.fromEntries(
+//       Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
+//     );
+//     // DynamoDBへの登録
+//     const params: ddbLib.UpdateCommandInput = {
+//       TableName: tableName,
+//       Key: {
+//         id: req.params.id,
+//       },
+//       UpdateExpression: `set ${updateExpression.join()}`,
+//       ExpressionAttributeNames: expressionAttributeNames,
+//       ExpressionAttributeValues: expressionAttributeValues,
+//       ReturnValues: 'ALL_NEW',
+//     };
+//     try {
+//       const result: ddbLib.UpdateCommandOutput = await ddbDocClient.send(
+//         new ddbLib.UpdateCommand(params)
+//       );
+//       res.status(200).json(result.Attributes);
+//     } catch (err) {
+//       next(err);
+//     }
+//   }
+// );
 
-    const expressionAttributeValues = Object.fromEntries(
-      Object.entries(req.body).map(([k, v]) => [`:${k}`, v])
-    );
+// router.delete(
+//   '/bears/:id',
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const params: ddbLib.DeleteCommandInput = {
+//       TableName: tableName,
+//       Key: {
+//         id: req.params.id,
+//       },
+//       ReturnValues: 'ALL_OLD',
+//     };
+//     try {
+//       const result: ddbLib.DeleteCommandOutput = await ddbDocClient.send(
+//         new ddbLib.DeleteCommand(params)
+//       );
+//       result.Attributes
+//         ? res.status(200).json(result.Attributes)
+//         : res.status(404).json('Sorry cant find that!');
+//     } catch (err) {
+//       next(err);
+//     }
+//   }
+// );
 
-    const params = {
-      TableName: tableName,
-      Key: {
-        id: req.params.id,
-      },
-      UpdateExpression: `set ${updateExpression.join()}`,
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: 'ALL_NEW',
-    };
-
-    try {
-      // console.log(params);
-      const result = await docClient.update(params).promise();
-      res.status(200).json(result.Attributes);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-router.delete(
-  '/bears/:id',
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const params = {
-      TableName: tableName,
-      Key: {
-        id: req.params.id,
-      },
-      ReturnValues: 'ALL_OLD',
-    };
-
-    try {
-      const result = await docClient.delete(params).promise();
-      Object.keys(result).length === 0
-        ? res.status(404).json('Sorry cant find that!')
-        : res.status(200).json(result.Attributes);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-router.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err);
-    res.status(err.statusCode).json(err.message);
-  }
-);
+router.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(500).json('Internal Server Error');
+});
 
 module.exports = router;
