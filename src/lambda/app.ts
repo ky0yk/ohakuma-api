@@ -1,7 +1,9 @@
+import { Express, Router } from 'express';
 import express = require('express');
-const app: express.Express = express();
+const app: Express = express();
+app.disable('x-powered-by');
 
-const router: express.Router = require('./router');
+const router: Router = require('./router');
 
 app.use('/', router);
 
