@@ -50,3 +50,34 @@ export const createBear = async (bearInfo: Bear): Promise<Bear> => {
   );
   return bearInfo as Bear;
 };
+
+export const updateBear = async (
+  bearId: string,
+  bearInfo: Bear
+): Promise<Bear> => {
+  // クエリの組み立て
+  const updateExpression = Object.keys(bearInfo).map(
+    (key) => `#att_${key} =:${key}`
+  );
+  const expressionAttributeNames = Object.fromEntries(
+    Object.entries(bearInfo).map(([k, v]) => [`#att_${k}`, k])
+  );
+  const expressionAttributeValues = Object.fromEntries(
+    Object.entries(bearInfo).map(([k, v]) => [`:${k}`, v])
+  );
+  // DynamoDBへの登録
+  const params: ddbLib.UpdateCommandInput = {
+    TableName: tableName,
+    Key: {
+      id: bearId,
+    },
+    UpdateExpression: `set ${updateExpression.join()}`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
+    ReturnValues: 'ALL_NEW',
+  };
+  const result: ddbLib.UpdateCommandOutput = await ddbDocClient.send(
+    new ddbLib.UpdateCommand(params)
+  );
+  return result.Attributes as Bear;
+};
