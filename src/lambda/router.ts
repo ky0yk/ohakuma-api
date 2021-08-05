@@ -75,28 +75,19 @@ router.put(
   }
 );
 
-// router.delete(
-//   '/bears/:id',
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const params: ddbLib.DeleteCommandInput = {
-//       TableName: tableName,
-//       Key: {
-//         id: req.params.id,
-//       },
-//       ReturnValues: 'ALL_OLD',
-//     };
-//     try {
-//       const result: ddbLib.DeleteCommandOutput = await ddbDocClient.send(
-//         new ddbLib.DeleteCommand(params)
-//       );
-//       result.Attributes
-//         ? res.status(200).json(result.Attributes)
-//         : res.status(404).json('Sorry cant find that!');
-//     } catch (err) {
-//       next(err);
-//     }
-//   }
-// );
+router.delete(
+  '/bears/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await ddb.deleteBear(req.params.id);
+      result
+        ? res.status(200).json(result)
+        : res.status(404).json('Sorry cant find that!');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 router.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json('Internal Server Error');

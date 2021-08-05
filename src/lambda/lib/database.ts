@@ -81,3 +81,17 @@ export const updateBear = async (
   );
   return result.Attributes as Bear;
 };
+
+export const deleteBear = async (bearId: string) => {
+  const params: ddbLib.DeleteCommandInput = {
+    TableName: tableName,
+    Key: {
+      id: bearId,
+    },
+    ReturnValues: 'ALL_OLD',
+  };
+  const result: ddbLib.DeleteCommandOutput = await ddbDocClient.send(
+    new ddbLib.DeleteCommand(params)
+  );
+  return result.Attributes as Bear;
+};
