@@ -36,7 +36,10 @@ router.get(
 
 router.post(
   '/bears',
-  [check('name').isString().trim().notEmpty()],
+  [
+    check('name').isString().trim().notEmpty(),
+    body('imageUrl').if(body('imageUrl').exists()).isURL(),
+  ],
   async (req: Request, res: Response, next: NextFunction) => {
     //　バリデーション
     const errors = validationResult(req);
@@ -58,6 +61,7 @@ router.put(
   [
     body('id').not().exists(),
     body('name').if(body('name').exists()).notEmpty().isString(),
+    body('imageUrl').if(body('imageUrl').exists()).isURL(),
   ],
   async (req: Request, res: Response, next: NextFunction) => {
     //　バリデーション
