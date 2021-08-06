@@ -3,8 +3,11 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { body, check, Result, validationResult } from 'express-validator';
 import * as ddb from './lib/database';
 
+const morgan = require('morgan');
 const router: Router = express.Router();
+
 router.use(express.json());
+router.use(morgan('combined'));
 
 router.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is working!' });
@@ -94,6 +97,7 @@ router.delete(
 );
 
 router.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
   res.status(500).json('Internal Server Error');
 });
 
