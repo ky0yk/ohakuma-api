@@ -41,6 +41,7 @@ router.post(
   '/bears',
   [
     check('name').isString().trim().notEmpty(),
+    body('id').not().exists(),
     body('imageUrl').if(body('imageUrl').exists()).isURL(),
   ],
   async (req: Request, res: Response, next: NextFunction) => {
