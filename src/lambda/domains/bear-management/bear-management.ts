@@ -1,7 +1,7 @@
 import express = require('express');
 import { Router, Request, Response, NextFunction } from 'express';
 import { body, check, Result, validationResult } from 'express-validator';
-import * as ddb from './lib/database';
+import * as ddb from '../../infrastructures/dynamodb/dynamodb-bear-management-table';
 
 const morgan = require('morgan');
 const router: Router = express.Router();
