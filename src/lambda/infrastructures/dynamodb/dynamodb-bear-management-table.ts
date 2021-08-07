@@ -1,3 +1,4 @@
+import { Bear } from '../../domains/bear-management/bear-management';
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,13 +9,6 @@ if (!tableName) {
 }
 const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
 const ddbDocClient = ddbLib.DynamoDBDocumentClient.from(ddbClient);
-
-type Bear = {
-  name: string;
-  info?: string;
-  imageUrl?: string;
-  [attr: string]: any;
-};
 
 export const getAllBears = async (): Promise<Bear[]> => {
   const params: ddbLib.ScanCommandInput = {
