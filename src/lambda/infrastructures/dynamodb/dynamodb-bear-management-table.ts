@@ -7,8 +7,8 @@ const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
   throw new Error('テーブル名を取得できませんでした。');
 }
-const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
-const ddbDocClient = ddbLib.DynamoDBDocumentClient.from(ddbClient);
+export const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
+export const ddbDocClient = ddbLib.DynamoDBDocumentClient.from(ddbClient);
 
 export const getAllBears = async (): Promise<Bear[]> => {
   const params: ddbLib.ScanCommandInput = {
@@ -17,6 +17,7 @@ export const getAllBears = async (): Promise<Bear[]> => {
   const data: ddbLib.ScanCommandOutput = await ddbDocClient.send(
     new ddbLib.ScanCommand(params)
   );
+  console.log(data);
   return data.Items as Bear[];
 };
 
@@ -70,6 +71,7 @@ export const updateBear = async (
     ExpressionAttributeValues: expressionAttributeValues,
     ReturnValues: 'ALL_NEW',
   };
+  console.log(params);
   const result: ddbLib.UpdateCommandOutput = await ddbDocClient.send(
     new ddbLib.UpdateCommand(params)
   );
