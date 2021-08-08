@@ -5,6 +5,7 @@ import {
   ScanCommand,
   PutCommand,
   UpdateCommand,
+  DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
@@ -79,4 +80,23 @@ it('IDに対応するクマ情報の更新ができること', async () => {
   const response = await infra.updateBear(uuid, item);
   console.log(response);
   expect(response).toStrictEqual(updatedItem);
+});
+
+it('IDに対応するクマ情報の削除ができること', async () => {
+  const uuid = uuidv4();
+  const item = { id: uuid, name: 'グリズリー', info: '灰色熊' };
+  ddbMock
+    .on(DeleteCommand, {
+      TableName: tableName,
+      Key: {
+        id: uuid,
+      },
+      ReturnValues: 'ALL_OLD',
+    })
+    .resolves({
+      Attributes: item,
+    });
+  const response = await infra.deleteBear(uuid);
+  console.log(response);
+  expect(response).toStrictEqual(item);
 });
