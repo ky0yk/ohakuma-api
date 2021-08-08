@@ -43,6 +43,7 @@ export const createBear = async (bearInfo: Bear): Promise<Bear> => {
   const data: ddbLib.PutCommandOutput = await ddbDocClient.send(
     new ddbLib.PutCommand(params)
   );
+  // TODO getBearで確認もいれる？
   return bearInfo as Bear;
 };
 

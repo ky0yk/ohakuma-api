@@ -1,6 +1,6 @@
 import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
 import { mockClient } from 'aws-sdk-client-mock';
-import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, ScanCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -26,6 +26,17 @@ it('IDに対応するクマ情報の取得ができること', async () => {
   });
 
   const response = await infra.getBear(uuid);
+  console.log(response);
+  expect(response).toStrictEqual(item);
+});
+
+it('クマ情報の作成ができること', async () => {
+  const item = { id: uuidv4(), name: 'ヒグマ', info: 'ヒトはヒグマに勝てねえ' };
+  ddbMock.on(PutCommand).resolves({
+    Attributes: item,
+  });
+
+  const response = await infra.createBear(item);
   console.log(response);
   expect(response).toStrictEqual(item);
 });
