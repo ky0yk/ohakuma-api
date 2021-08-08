@@ -1,6 +1,11 @@
 import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
 import { mockClient } from 'aws-sdk-client-mock';
-import { GetCommand, ScanCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  GetCommand,
+  ScanCommand,
+  PutCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
 import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -53,4 +58,25 @@ it('クマ情報の作成ができること', async () => {
   const response = await infra.createBear(item);
   console.log(response);
   expect(response).toStrictEqual(item);
+});
+
+it('IDに対応するクマ情報の更新ができること', async () => {
+  const uuid = uuidv4();
+  const item = { name: 'パンダ', info: '大熊猫' };
+  const updatedItem = { id: uuid, name: 'パンダ', info: '大熊猫' };
+  ddbMock
+    .on(UpdateCommand, {
+      TableName: tableName,
+      Key: { id: uuid },
+      UpdateExpression: 'set #att_name =:name,#att_info =:info',
+      ExpressionAttributeNames: { '#att_name': 'name', '#att_info': 'info' },
+      ExpressionAttributeValues: { ':name': 'パンダ', ':info': '大熊猫' },
+      ReturnValues: 'ALL_NEW',
+    })
+    .resolves({
+      Attributes: updatedItem,
+    });
+  const response = await infra.updateBear(uuid, item);
+  console.log(response);
+  expect(response).toStrictEqual(updatedItem);
 });
