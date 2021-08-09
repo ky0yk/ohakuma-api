@@ -1,12 +1,6 @@
 import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
 import { mockClient } from 'aws-sdk-client-mock';
-import {
-  GetCommand,
-  ScanCommand,
-  PutCommand,
-  UpdateCommand,
-  DeleteCommand,
-} from '@aws-sdk/lib-dynamodb';
+import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,88 +9,96 @@ const tableName = process.env.TABLE_NAME;
 const ddbMock = mockClient(infra.ddbDocClient);
 
 it('全クマ情報の取得ができること', async () => {
-  const items: Bear[] = [
+  const expectedItems: Bear[] = [
     { id: uuidv4(), name: 'ヒグマ', info: 'ヒトはヒグマに勝てねえ' },
     { id: uuidv4(), name: 'シロクマ', info: '白いクマです' },
   ];
   ddbMock
-    .on(ScanCommand, {
+    .on(ddbLib.ScanCommand, {
       TableName: tableName,
     })
     .resolves({
-      Items: items,
+      Items: expectedItems,
     });
   const response = await infra.getAllBears();
-  expect(response).toStrictEqual(items);
+  expect(response).toStrictEqual(expectedItems);
 });
 
 it('IDに対応するクマ情報の取得ができること', async () => {
-  const uuid = uuidv4();
-  const item = { id: uuid, name: 'ヒグマ', info: 'ヒトはヒグマに勝てねえ' };
+  const inputId = uuidv4();
+  const expectedItem: Bear = {
+    id: inputId,
+    name: 'ヒグマ',
+    info: 'ヒトはヒグマに勝てねえ',
+  };
   ddbMock
-    .on(GetCommand, {
+    .on(ddbLib.GetCommand, {
       TableName: tableName,
-      Key: { id: uuid },
+      Key: { id: inputId },
     })
     .resolves({
-      Item: item,
+      Item: expectedItem,
     });
-  const response = await infra.getBear(uuid);
+  const response = await infra.getBear(inputId);
   console.log(response);
-  expect(response).toStrictEqual(item);
+  expect(response).toStrictEqual(expectedItem);
 });
 
 it('クマ情報の作成ができること', async () => {
-  const item = { id: uuidv4(), name: 'ヒグマ', info: 'ヒトはヒグマに勝てねえ' };
+  const inputItem = {
+    id: uuidv4(),
+    name: 'ヒグマ',
+    info: 'ヒトはヒグマに勝てねえ',
+  };
   ddbMock
-    .on(PutCommand, {
+    .on(ddbLib.PutCommand, {
       TableName: tableName,
-      Item: item,
+      Item: inputItem,
     })
     .resolves({
-      Attributes: item,
+      Attributes: inputItem,
     });
-  const response = await infra.createBear(item);
+  const response = await infra.createBear(inputItem);
   console.log(response);
-  expect(response).toStrictEqual(item);
+  expect(response).toStrictEqual(inputItem);
 });
 
 it('IDに対応するクマ情報の更新ができること', async () => {
-  const uuid = uuidv4();
-  const item = { name: 'パンダ', info: '大熊猫' };
-  const updatedItem = { id: uuid, name: 'パンダ', info: '大熊猫' };
+  const inputId = uuidv4();
+  const inputItem = { name: 'パンダ', info: '大熊猫' };
+  const expectedItem = { id: inputId, name: 'パンダ', info: '大熊猫' };
   ddbMock
-    .on(UpdateCommand, {
+    .on(ddbLib.UpdateCommand, {
       TableName: tableName,
-      Key: { id: uuid },
+      Key: { id: inputId },
       UpdateExpression: 'set #att_name =:name,#att_info =:info',
       ExpressionAttributeNames: { '#att_name': 'name', '#att_info': 'info' },
       ExpressionAttributeValues: { ':name': 'パンダ', ':info': '大熊猫' },
       ReturnValues: 'ALL_NEW',
     })
     .resolves({
-      Attributes: updatedItem,
+      Attributes: expectedItem,
     });
-  const response = await infra.updateBear(uuid, item);
+  const response = await infra.updateBear(inputId, inputItem);
   console.log(response);
-  expect(response).toStrictEqual(updatedItem);
+  expect(response).toStrictEqual(expectedItem);
 });
 
 it('IDに対応するクマ情報の削除ができること', async () => {
-  const uuid = uuidv4();
-  const item = { id: uuid, name: 'グリズリー', info: '灰色熊' };
+  const inputId = uuidv4();
+  const expectedItem = { id: inputId, name: 'グリズリー', info: '灰色熊' };
   ddbMock
-    .on(DeleteCommand, {
+    .on(ddbLib.DeleteCommand, {
       TableName: tableName,
       Key: {
-        id: uuid,
+        id: inputId,
       },
       ReturnValues: 'ALL_OLD',
     })
     .resolves({
-      Attributes: item,
+      Attributes: expectedItem,
     });
-  const response = await infra.deleteBear(uuid);
+  const response = await infra.deleteBear(inputId);
   console.log(response);
-  expect(response).toStrictEqual(item);
+  expect(response).toStrictEqual(expectedItem);
 });
