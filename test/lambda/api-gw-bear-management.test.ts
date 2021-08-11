@@ -28,6 +28,7 @@ describe('ユースケース', () => {
     expect(getBearsMock.mock.calls.length).toBe(1);
     expect(res.status).toEqual(200);
   });
+
   test('IDに対応するクマ情報の取得ができること', async () => {
     const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
     const getBearsMock = (ddb.getBear as jest.Mock).mockResolvedValue({
@@ -41,5 +42,26 @@ describe('ユースケース', () => {
     expect(getBearsMock.mock.calls.length).toBe(1);
     expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
     expect(res.status).toEqual(200);
+  });
+
+  test('クマ情報の作成ができること', async () => {
+    const inputItem = {
+      name: 'ヒグマ',
+      info: 'ヒトはヒグマに勝てねえ',
+    };
+    const expectedItem = {
+      id: '0fe0fa77-2499-b391-2e10-8b32f7bc44d8',
+      name: 'ヒグマ',
+      info: 'ヒトはヒグマに勝てねえ',
+    };
+    const getBearsMock = (ddb.createBear as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
+    const res: request.Response = await request(server)
+      .post(`/bears`)
+      .send(inputItem);
+    expect(getBearsMock.mock.calls.length).toBe(1);
+    expect(getBearsMock.mock.calls[0][0]).toEqual(inputItem);
+    expect(res.status).toEqual(201);
   });
 });
