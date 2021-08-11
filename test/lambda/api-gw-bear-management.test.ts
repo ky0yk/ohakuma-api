@@ -64,4 +64,24 @@ describe('ユースケース', () => {
     expect(getBearsMock.mock.calls[0][0]).toEqual(inputItem);
     expect(res.status).toEqual(201);
   });
+
+  test('IDに対応するクマ情報の更新ができること', async () => {
+    const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
+    const inputItem = {
+      name: 'ヒグマ',
+      info: 'なっちまえばいいじゃん。羆に',
+    };
+    const getBearsMock = (ddb.updateBear as jest.Mock).mockResolvedValue({
+      id: inputId,
+      name: 'ヒグマ',
+      info: 'なっちまえばいいじゃん。羆に',
+    });
+    const res: request.Response = await request(server)
+      .put(`/bears/${inputId}`)
+      .send(inputItem);
+    expect(getBearsMock.mock.calls.length).toBe(1);
+    expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
+    expect(getBearsMock.mock.calls[0][1]).toEqual(inputItem);
+    expect(res.status).toEqual(200);
+  });
 });
