@@ -1,11 +1,23 @@
 import * as http from 'http';
 import request = require('supertest');
 const app = require('../../src/lambda/handlers//api-gw/app');
-import * as ddb from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
+import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
+import { v4 as uuidv4 } from 'uuid';
+import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 
 jest.mock(
   '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table'
 );
+
+/**
+ * 【担保できていること】
+ * ドメイン層の関数の戻り値が想定通りであること
+ * ドメイン層の関数に紐づくインフラ層の関数が一度だけ呼ばれること
+ * ドメイン層の関数に紐づくインフラ層の関数に渡されるパラメータが正しいこと
+ *
+ * 【担保できていないこと】
+ * リクエストされたパスに紐づくドメイン層の関数が呼ばれること
+ */
 
 describe('ユースケース', () => {
   let server: http.Server;
@@ -23,80 +35,99 @@ describe('ユースケース', () => {
   });
 
   test('全クマ情報の取得ができること', async () => {
-    const getBearsMock = (ddb.getAllBears as jest.Mock).mockResolvedValue(null);
+    const expectedItem: Bear[] = [
+      { id: uuidv4(), name: 'ヒグマ', info: 'ヒトはヒグマに勝てねえ' },
+      { id: uuidv4(), name: 'シロクマ', info: '白いクマです' },
+    ];
+    const getAllBearsMock = (infra.getAllBears as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
     const res: request.Response = await request(server).get('/bears');
-    expect(getBearsMock.mock.calls.length).toBe(1);
+    expect(getAllBearsMock.mock.calls.length).toBe(1);
+    expect(getAllBearsMock.mock.calls[0][0]).toBeUndefined();
     expect(res.status).toEqual(200);
+    expect(res.body).toEqual(expectedItem);
   });
 
   test('IDに対応するクマ情報の取得ができること', async () => {
-    const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
-    const getBearsMock = (ddb.getBear as jest.Mock).mockResolvedValue({
+    const inputId: string = uuidv4();
+    const expectedItem: Bear = {
       id: inputId,
       name: 'ヒグマ',
       info: 'ヒトはヒグマに勝てねえ',
-    });
+    };
+    const getBearMock = (infra.getBear as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
     const res: request.Response = await request(server).get(
       `/bears/${inputId}`
     );
-    expect(getBearsMock.mock.calls.length).toBe(1);
-    expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
+    expect(getBearMock.mock.calls.length).toBe(1);
+    expect(getBearMock.mock.calls[0][0]).toEqual(inputId);
     expect(res.status).toEqual(200);
+    expect(res.body).toEqual(expectedItem);
   });
 
   test('クマ情報の作成ができること', async () => {
-    const inputItem = {
+    const inputItem: Bear = {
       name: 'ヒグマ',
       info: 'ヒトはヒグマに勝てねえ',
     };
-    const expectedItem = {
-      id: '0fe0fa77-2499-b391-2e10-8b32f7bc44d8',
-      name: 'ヒグマ',
-      info: 'ヒトはヒグマに勝てねえ',
+    const expectedItem: Bear = {
+      id: uuidv4(),
+      ...inputItem,
     };
-    const getBearsMock = (ddb.createBear as jest.Mock).mockResolvedValue(
+    const createBearMock = (infra.createBear as jest.Mock).mockResolvedValue(
       expectedItem
     );
     const res: request.Response = await request(server)
       .post(`/bears`)
       .send(inputItem);
-    expect(getBearsMock.mock.calls.length).toBe(1);
-    expect(getBearsMock.mock.calls[0][0]).toEqual(inputItem);
+    expect(createBearMock.mock.calls.length).toBe(1);
+    expect(createBearMock.mock.calls[0][0]).toEqual(inputItem);
     expect(res.status).toEqual(201);
+    expect(res.body).toEqual(expectedItem);
   });
 
   test('IDに対応するクマ情報の更新ができること', async () => {
-    const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
-    const inputItem = {
+    const inputId = uuidv4();
+    const inputItem: Bear = {
       name: 'ヒグマ',
       info: 'なっちまえばいいじゃん。羆に',
     };
-    const getBearsMock = (ddb.updateBear as jest.Mock).mockResolvedValue({
+    const expectedItem: Bear = {
+      ...inputItem,
       id: inputId,
-      name: 'ヒグマ',
-      info: 'なっちまえばいいじゃん。羆に',
-    });
+    };
+    const updateBearsMock = (infra.updateBear as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
     const res: request.Response = await request(server)
       .put(`/bears/${inputId}`)
       .send(inputItem);
-    expect(getBearsMock.mock.calls.length).toBe(1);
-    expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
-    expect(getBearsMock.mock.calls[0][1]).toEqual(inputItem);
+    expect(updateBearsMock.mock.calls.length).toBe(1);
+    expect(updateBearsMock.mock.calls[0][0]).toEqual(inputId);
+    expect(updateBearsMock.mock.calls[0][1]).toEqual(inputItem);
     expect(res.status).toEqual(200);
+    expect(res.body).toEqual(expectedItem);
   });
 
   test('IDに対応するクマ情報の削除ができること', async () => {
-    const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
-    const getBearsMock = (ddb.deleteBear as jest.Mock).mockResolvedValue({
+    const inputId = uuidv4();
+    const expectedItem: Bear = {
       id: inputId,
       name: 'シロクマ',
       info: '白いクマです',
-    });
+    };
+    const deleteBearsMock = (infra.deleteBear as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
     const res: request.Response = await request(server).delete(
       `/bears/${inputId}`
     );
-    expect(getBearsMock.mock.calls.length).toBe(1);
-    expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
+    expect(deleteBearsMock.mock.calls.length).toBe(1);
+    expect(deleteBearsMock.mock.calls[0][0]).toEqual(inputId);
     expect(res.status).toEqual(200);
+    expect(res.body).toEqual(expectedItem);
   });
 });
