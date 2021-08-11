@@ -84,4 +84,19 @@ describe('ユースケース', () => {
     expect(getBearsMock.mock.calls[0][1]).toEqual(inputItem);
     expect(res.status).toEqual(200);
   });
+
+  test('IDに対応するクマ情報の削除ができること', async () => {
+    const inputId = '0fe0fa77-2499-b391-2e10-8b32f7bc44d8';
+    const getBearsMock = (ddb.deleteBear as jest.Mock).mockResolvedValue({
+      id: inputId,
+      name: 'シロクマ',
+      info: '白いクマです',
+    });
+    const res: request.Response = await request(server).delete(
+      `/bears/${inputId}`
+    );
+    expect(getBearsMock.mock.calls.length).toBe(1);
+    expect(getBearsMock.mock.calls[0][0]).toEqual(inputId);
+    expect(res.status).toEqual(200);
+  });
 });
