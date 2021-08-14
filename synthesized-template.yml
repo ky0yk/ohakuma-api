@@ -1,0 +1,427 @@
+yarn run v1.22.4
+$ cdk synth
+Resources:
+  appLambdaServiceRoleFBB2849A:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/appLambda/ServiceRole/Resource
+  appLambdaServiceRoleDefaultPolicyE92DC7C2:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:Query
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:ConditionCheckItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ohakumaTable665EDA21
+                  - Arn
+              - Ref: AWS::NoValue
+        Version: "2012-10-17"
+      PolicyName: appLambdaServiceRoleDefaultPolicyE92DC7C2
+      Roles:
+        - Ref: appLambdaServiceRoleFBB2849A
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/appLambda/ServiceRole/DefaultPolicy/Resource
+  appLambdaE41FDDE5:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdS3Bucket4ADDB851
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdS3VersionKey9FB902CC
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdS3VersionKey9FB902CC
+      Role:
+        Fn::GetAtt:
+          - appLambdaServiceRoleFBB2849A
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: ohakumaTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+      Handler: index.handler
+      Runtime: nodejs14.x
+    DependsOn:
+      - appLambdaServiceRoleDefaultPolicyE92DC7C2
+      - appLambdaServiceRoleFBB2849A
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/appLambda/Resource
+      aws:asset:path: asset.86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cd
+      aws:asset:property: Code
+  ohakumaApi27273D12:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ohakumaApi
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Resource
+  ohakumaApiCloudWatchRole9F4B27C6:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/CloudWatchRole/Resource
+  ohakumaApiAccount4BB13C23:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - ohakumaApiCloudWatchRole9F4B27C6
+          - Arn
+    DependsOn:
+      - ohakumaApi27273D12
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Account
+  ohakumaApiDeployment4B1AE0715635a1a8d353ceaa6ca4da2f14e39437:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ohakumaApi27273D12
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - ohakumaApiproxyANY0AA3D252
+      - ohakumaApiproxy1FA122B3
+      - ohakumaApiANYB5F72ED5
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Deployment/Resource
+  ohakumaApiDeploymentStageprod7E040CFB:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: ohakumaApi27273D12
+      DeploymentId:
+        Ref: ohakumaApiDeployment4B1AE0715635a1a8d353ceaa6ca4da2f14e39437
+      StageName: prod
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/DeploymentStage.prod/Resource
+  ohakumaApiproxy1FA122B3:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ohakumaApi27273D12
+          - RootResourceId
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: ohakumaApi27273D12
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/{proxy+}/Resource
+  ohakumaApiproxyANYApiPermissionOhakumaApiStackohakumaApiEE2B1BCBANYproxy461652D0:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - appLambdaE41FDDE5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ohakumaApi27273D12
+            - /
+            - Ref: ohakumaApiDeploymentStageprod7E040CFB
+            - /*/*
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/{proxy+}/ANY/ApiPermission.OhakumaApiStackohakumaApiEE2B1BCB.ANY..{proxy+}
+  ohakumaApiproxyANYApiPermissionTestOhakumaApiStackohakumaApiEE2B1BCBANYproxy0C7561A6:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - appLambdaE41FDDE5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ohakumaApi27273D12
+            - /test-invoke-stage/*/*
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/{proxy+}/ANY/ApiPermission.Test.OhakumaApiStackohakumaApiEE2B1BCB.ANY..{proxy+}
+  ohakumaApiproxyANY0AA3D252:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: ohakumaApiproxy1FA122B3
+      RestApiId:
+        Ref: ohakumaApi27273D12
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - appLambdaE41FDDE5
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/{proxy+}/ANY/Resource
+  ohakumaApiANYApiPermissionOhakumaApiStackohakumaApiEE2B1BCBANY367A6ABE:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - appLambdaE41FDDE5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ohakumaApi27273D12
+            - /
+            - Ref: ohakumaApiDeploymentStageprod7E040CFB
+            - /*/
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/ANY/ApiPermission.OhakumaApiStackohakumaApiEE2B1BCB.ANY..
+  ohakumaApiANYApiPermissionTestOhakumaApiStackohakumaApiEE2B1BCBANYF4249AC5:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - appLambdaE41FDDE5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ohakumaApi27273D12
+            - /test-invoke-stage/*/
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/ANY/ApiPermission.Test.OhakumaApiStackohakumaApiEE2B1BCB.ANY..
+  ohakumaApiANYB5F72ED5:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Fn::GetAtt:
+          - ohakumaApi27273D12
+          - RootResourceId
+      RestApiId:
+        Ref: ohakumaApi27273D12
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - appLambdaE41FDDE5
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaApi/Default/ANY/Resource
+  ohakumaTable665EDA21:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: ohakumaTable
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/ohakumaTable/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAAE22RyU4DMQyGn4V7xmUEgistiBNLVXgBNzEl7SQZJQ5lFM27k4WiHjj5t+Xls91D39/A5cUdHkMn1WGRpPME6Y1RHsQyBOIsd9ruxL2zgX2ULO4/7Bo9GmLyxXmNPEYWGwouekkldK5zodKsnZ1FmZIGNFuFnXWK9gFeqnmMVpYUodFA2rihdSl27QYtpzq0qlmEqw4LWYAKmH1YRXkgXmEg0dpDygV/XUsxeaNDaBij3iHTESdITzU98/Jy1L/oJ7mU0kXL4oHGwU2GbN39zCu3qaRNnLauHGvvvqd/b/JM/OlUCTU1CzVZNE5tIb3jtu1exTzPotwJ9mHx1V9Df5t/tQ9adz5zaUOwafYH6HT9ncgBAAA=
+    Metadata:
+      aws:cdk:path: OhakumaApiStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Parameters:
+  AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdS3Bucket4ADDB851:
+    Type: String
+    Description: S3 bucket for asset "86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cd"
+  AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdS3VersionKey9FB902CC:
+    Type: String
+    Description: S3 key for asset version "86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cd"
+  AssetParameters86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cdArtifactHash891DD342:
+    Type: String
+    Description: Artifact hash for asset "86d7c9b41bbd2021ff2bd5015f1015fdd8db55fc028060c3307102c7cade35cd"
+Outputs:
+  ohakumaApiEndpointEBC36257:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: ohakumaApi27273D12
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: ohakumaApiDeploymentStageprod7E040CFB
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
+Done in 13.24s.
