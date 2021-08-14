@@ -88,6 +88,7 @@ export const deleteBear = async (
 
 export type Bear = {
   name: string;
+  id?: string;
   info?: string;
   imageUrl?: string;
   [attr: string]: any;

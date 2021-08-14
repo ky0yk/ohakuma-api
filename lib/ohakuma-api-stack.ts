@@ -10,7 +10,7 @@ export class OhakumaApiStack extends cdk.Stack {
     const tableName = 'ohakumaTable';
     // The code that defines your stack goes here
     const appLambda = new NodejsFunction(this, 'appLambda', {
-      entry: 'src/lambda/handler/index.ts',
+      entry: 'src/lambda/handlers/api-gw/index.ts',
       handler: 'handler',
       environment: {
         TABLE_NAME: tableName,
