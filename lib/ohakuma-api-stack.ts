@@ -2,30 +2,42 @@ import * as cdk from '@aws-cdk/core';
 import * as apigw from '@aws-cdk/aws-apigateway';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import { ResourceName } from './resourceName';
 
 export class OhakumaApiStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: cdk.Construct,
+    resourceName: ResourceName,
+    props?: cdk.StackProps
+  ) {
+    const id = resourceName.stackName('Api');
     super(scope, id, props);
 
-    const tableName = 'ohakumaTable';
-    // The code that defines your stack goes here
-    const appLambda = new NodejsFunction(this, 'appLambda', {
-      entry: 'src/lambda/handlers/api-gw/index.ts',
-      handler: 'handler',
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    new apigw.LambdaRestApi(this, 'ohakumaApi', {
-      handler: appLambda,
-    });
-
-    const table = new dynamodb.Table(this, 'ohakumaTable', {
-      tableName: tableName,
+    // DynamoDB
+    const bearTableName = resourceName.dynamodbName('bear');
+    const bearTable = new dynamodb.Table(this, bearTableName, {
+      tableName: bearTableName,
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
-    table.grantReadWriteData(appLambda);
+    // Lambda
+    const manageBearLambdaName = resourceName.lambdaName('manage-bear');
+    const manageBearLambda = new NodejsFunction(this, manageBearLambdaName, {
+      functionName: manageBearLambdaName,
+      entry: 'src/lambda/handlers/api-gw/index.ts',
+      handler: 'handler',
+      environment: {
+        TABLE_NAME: bearTableName,
+      },
+    });
+
+    bearTable.grantReadWriteData(manageBearLambda);
+
+    // API Gateway
+    const apiName = resourceName.apiName('manage-bear');
+    new apigw.LambdaRestApi(this, apiName, {
+      restApiName: apiName,
+      handler: manageBearLambda,
+    });
   }
 }
