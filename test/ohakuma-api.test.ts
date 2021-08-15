@@ -14,11 +14,11 @@ const app = new cdk.App();
 const stack = new OhakumaApi.OhakumaApiStack(app, resourceName);
 
 test('Lambda', () => {
-  expectCDK(stack).to(countResources('AWS::Lambda::Function', 1));
+  expectCDK(stack).to(countResources('AWS::Lambda::Function', 2));
 });
 
 test('API Gateway', () => {
-  expectCDK(stack).to(countResources('AWS::ApiGateway::RestApi', 1));
+  expectCDK(stack).to(countResources('AWS::ApiGateway::RestApi', 2));
   expectCDK(stack).to(countResources('AWS::ApiGateway::ApiKey', 2));
   expectCDK(stack).to(
     haveResource('AWS::ApiGateway::ApiKey', {

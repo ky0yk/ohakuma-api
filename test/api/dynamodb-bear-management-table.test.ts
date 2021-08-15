@@ -1,7 +1,7 @@
-import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
+import * as infra from '../../src/api/infrastructures/dynamodb/dynamodb-bear-management-table';
 import { mockClient } from 'aws-sdk-client-mock';
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
-import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
+import { Bear } from '../../src/api/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
 
 const tableName = process.env.TABLE_NAME;

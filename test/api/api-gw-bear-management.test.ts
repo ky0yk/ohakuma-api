@@ -1,12 +1,12 @@
 import * as http from 'http';
 import request = require('supertest');
-const app = require('../../src/lambda/handlers//api-gw/app');
-import * as infra from '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table';
+const app = require('../../src/api/handlers//api-gw/app');
+import * as infra from '../../src/api/infrastructures/dynamodb/dynamodb-bear-management-table';
 import { v4 as uuidv4 } from 'uuid';
-import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
+import { Bear } from '../../src/api/domains/bear-management/bear-management';
 
 jest.mock(
-  '../../src/lambda/infrastructures/dynamodb/dynamodb-bear-management-table'
+  '../../src/api/infrastructures/dynamodb/dynamodb-bear-management-table'
 );
 
 /**
