@@ -5,7 +5,6 @@ import { Bear } from '../../src/lambda/domains/bear-management/bear-management';
 import { v4 as uuidv4 } from 'uuid';
 
 const tableName = process.env.TABLE_NAME;
-
 const ddbMock = mockClient(infra.ddbDocClient);
 
 /**
