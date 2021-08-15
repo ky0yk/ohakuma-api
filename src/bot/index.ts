@@ -19,8 +19,8 @@ module.exports.handler = async (
   context: Context,
   callback: any
 ): Promise<void> => {
-  const handler: Server = await app.start();
-  //   return handler(event, context, callback);
+  const handler: any = await app.start();
+  return handler(event, context, callback);
 };
 
 // メッセージに"hello"が含まれていたら実行する処理

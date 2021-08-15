@@ -8,6 +8,9 @@ import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import { ResourceName } from './resourceName';
 
+// TODO 別の方法を検討
+require('dotenv').config();
+
 export class OhakumaApiStack extends cdk.Stack {
   constructor(
     scope: cdk.Construct,
@@ -70,7 +73,7 @@ export class OhakumaApiStack extends cdk.Stack {
     const slackBotLambdaName = resourceName.lambdaName('slack-bot');
     const slackBotLambda = new NodejsFunction(this, slackBotLambdaName, {
       functionName: slackBotLambdaName,
-      entry: 'src/bot/app.ts',
+      entry: 'src/bot/index.ts',
       handler: 'handler',
       environment: {
         SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN || '',
