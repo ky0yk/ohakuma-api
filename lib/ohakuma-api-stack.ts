@@ -14,7 +14,7 @@ export class OhakumaApiStack extends cdk.Stack {
     resourceName: ResourceName,
     props?: cdk.StackProps
   ) {
-    const id = resourceName.stackName('Api');
+    const id = resourceName.stackName('App');
     super(scope, id, props);
 
     // DynamoDB
@@ -64,5 +64,28 @@ export class OhakumaApiStack extends cdk.Stack {
     };
     createApiKey(manageBearApi, 'bot');
     createApiKey(manageBearApi, 'member');
+    // TODO APIキーの受け渡し方法の検討
+
+    // slack bot Lambda
+    const slackBotLambdaName = resourceName.lambdaName('slack-bot');
+    const slackBotLambda = new NodejsFunction(this, slackBotLambdaName, {
+      functionName: slackBotLambdaName,
+      entry: 'src/lambda/handlers/app.ts', // TODO 修正
+      handler: 'handler',
+      environment: {
+        SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN || '',
+        SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET || '',
+      },
+    });
+
+    // slack bot API Gateway
+    const slackBotApiName = resourceName.apiName('slack-bot');
+    const slackBotApi = new LambdaRestApi(this, slackBotApiName, {
+      restApiName: slackBotApiName,
+      handler: slackBotLambda,
+      deployOptions: {
+        stageName: 'v1',
+      },
+    });
   }
 }
