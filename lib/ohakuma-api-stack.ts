@@ -44,6 +44,9 @@ export class OhakumaApiStack extends cdk.Stack {
       handler: manageBearLambda,
       apiKeySourceType: ApiKeySourceType.HEADER,
       proxy: false,
+      deployOptions: {
+        stageName: 'v1',
+      },
     });
     manageBearApi.root.addMethod(
       'ANY',
