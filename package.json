@@ -11,7 +11,7 @@
     "cdk": "cdk",
     "deploy": "cdk deploy  --require-approval never",
     "deva": "IS_LOCAL=true ts-node src/api/handlers/api-gw/index.ts",
-    "devb": "IS_LOCAL=true ts-node src/bot/app.ts"
+    "devb": "IS_LOCAL=true ts-node src/bot/index.ts"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.118.0",
@@ -37,6 +37,7 @@
     "@aws-sdk/client-dynamodb": "^3.26.0",
     "@aws-sdk/lib-dynamodb": "^3.26.0",
     "@aws-sdk/util-dynamodb": "^3.26.0",
+    "@slack/bolt": "^3.5.0",
     "@vendia/serverless-express": "^4.3.9",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
