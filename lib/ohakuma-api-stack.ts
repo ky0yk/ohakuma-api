@@ -28,7 +28,7 @@ export class OhakumaApiStack extends cdk.Stack {
     const manageBearLambdaName = resourceName.lambdaName('manage-bear');
     const manageBearLambda = new NodejsFunction(this, manageBearLambdaName, {
       functionName: manageBearLambdaName,
-      entry: 'src/lambda/handlers/api-gw/index.ts',
+      entry: 'src/api/handlers/api-gw/index.ts',
       handler: 'handler',
       environment: {
         TABLE_NAME: bearTableName,
@@ -70,7 +70,7 @@ export class OhakumaApiStack extends cdk.Stack {
     const slackBotLambdaName = resourceName.lambdaName('slack-bot');
     const slackBotLambda = new NodejsFunction(this, slackBotLambdaName, {
       functionName: slackBotLambdaName,
-      entry: 'src/lambda/handlers/app.ts', // TODO 修正
+      entry: 'src/bot/app.ts',
       handler: 'handler',
       environment: {
         SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN || '',

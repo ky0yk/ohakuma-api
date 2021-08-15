@@ -10,7 +10,8 @@
     "test": "jest",
     "cdk": "cdk",
     "deploy": "cdk deploy  --require-approval never",
-    "dev": "IS_LOCAL=true ts-node src/lambda/handlers/api-gw/index.ts"
+    "deva": "IS_LOCAL=true ts-node src/api/handlers/api-gw/index.ts",
+    "devb": "IS_LOCAL=true ts-node src/bot/app.ts"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.118.0",
