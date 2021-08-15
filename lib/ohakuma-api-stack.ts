@@ -45,22 +45,21 @@ export class OhakumaApiStack extends cdk.Stack {
       apiKeySourceType: ApiKeySourceType.HEADER,
       proxy: false,
     });
-
     manageBearApi.root.addMethod(
       'ANY',
       new LambdaIntegration(manageBearLambda),
       { apiKeyRequired: true }
     );
 
-    // API Key
-    const manageBearApiKeyName = resourceName.apiKeyName('manage-bear');
-    const manageBearApiKey = manageBearApi.addApiKey(manageBearApiKeyName, {
-      apiKeyName: manageBearApiKeyName,
-    });
-
-    //TODO 名前を直す
-    const usagePlan = manageBearApi.addUsagePlan('hoge', { name: 'fuga' });
-    usagePlan.addApiKey(manageBearApiKey);
-    usagePlan.addApiStage({ stage: manageBearApi.deploymentStage });
+    // APIキーの発行とAPI Gatewayへの紐付け
+    const createApiKey = (apigw: LambdaRestApi, keyUserName: string) => {
+      const apiKeyName = resourceName.apiKeyName(keyUserName);
+      const apiKey = apigw.addApiKey(apiKeyName, { apiKeyName: apiKeyName });
+      const usagePlan = apigw.addUsagePlan(keyUserName, { name: keyUserName });
+      usagePlan.addApiKey(apiKey);
+      usagePlan.addApiStage({ stage: apigw.deploymentStage });
+    };
+    createApiKey(manageBearApi, 'bot');
+    createApiKey(manageBearApi, 'member');
   }
 }
