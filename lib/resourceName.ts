@@ -15,6 +15,10 @@ export class ResourceName {
     return this.basicName(`${name}-api`);
   }
 
+  public apiKeyName(name: string): string {
+    return this.basicName(`${name}-apikey`);
+  }
+
   public lambdaName(name: string): string {
     return this.basicName(`${name}-function`);
   }

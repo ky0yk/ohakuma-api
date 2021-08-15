@@ -19,6 +19,17 @@ test('Lambda', () => {
 
 test('API Gateway', () => {
   expectCDK(stack).to(countResources('AWS::ApiGateway::RestApi', 1));
+  expectCDK(stack).to(countResources('AWS::ApiGateway::ApiKey', 2));
+  expectCDK(stack).to(
+    haveResource('AWS::ApiGateway::ApiKey', {
+      Name: resourceName.apiKeyName('bot'),
+    })
+  );
+  expectCDK(stack).to(
+    haveResource('AWS::ApiGateway::ApiKey', {
+      Name: resourceName.apiKeyName('member'),
+    })
+  );
 });
 
 test('DynamoDB', () => {
