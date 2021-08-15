@@ -2,6 +2,7 @@
 import { App, AwsLambdaReceiver } from '@slack/bolt';
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { Server } from 'http';
+require('dotenv').config();
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET ?? '',
