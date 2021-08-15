@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import * as apigw from '@aws-cdk/aws-apigateway';
+import { LambdaRestApi, ApiKeySourceType } from '@aws-cdk/aws-apigateway';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import { ResourceName } from './resourceName';
@@ -34,10 +34,16 @@ export class OhakumaApiStack extends cdk.Stack {
     bearTable.grantReadWriteData(manageBearLambda);
 
     // API Gateway
-    const apiName = resourceName.apiName('manage-bear');
-    new apigw.LambdaRestApi(this, apiName, {
-      restApiName: apiName,
+    const manageBearApiName = resourceName.apiName('manage-bear');
+    const manageBearApi = new LambdaRestApi(this, manageBearApiName, {
+      restApiName: manageBearApiName,
       handler: manageBearLambda,
+    });
+
+    // API Key
+    const manageBearApiKeyName = resourceName.apiKeyName('manage-bear');
+    const manageBearApiKey = manageBearApi.addApiKey(manageBearApiKeyName, {
+      apiKeyName: manageBearApiKeyName,
     });
   }
 }
