@@ -1,27 +1,20 @@
-// import serverlessExpress from '@vendia/serverless-express';
 import { App, AwsLambdaReceiver } from '@slack/bolt';
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { Server } from 'http';
 require('dotenv').config();
 
+const isLocal: boolean = process.env.IS_LOCAL === 'true';
 const awsLambdaReceiver = new AwsLambdaReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET ?? '',
 });
 
-const app = new App({
+// ローカルフラグでコンフィグを変更
+const config = {
   token: process.env.SLACK_BOT_TOKEN,
-  receiver: awsLambdaReceiver,
-  processBeforeResponse: true,
-});
-
-module.exports.handler = async (
-  event: APIGatewayProxyEvent,
-  context: Context,
-  callback: any
-): Promise<void> => {
-  const handler: any = await app.start();
-  return handler(event, context, callback);
+  signingSecret: isLocal ? process.env.SLACK_SIGNING_SECRET : undefined,
+  receiver: isLocal ? undefined : awsLambdaReceiver,
+  processBeforeResponse: isLocal ? undefined : true,
 };
+
+const app = new App(config);
 
 // メッセージに"hello"が含まれていたら実行する処理
 app.message('hello', async ({ message, say }) => {
@@ -31,11 +24,12 @@ app.message('hello', async ({ message, say }) => {
 });
 
 // ローカル起動用
-if (process.env.IS_LOCAL === 'true') {
+if (isLocal) {
   (async () => {
-    // Start your app
-    await app.start(Number(process.env.PORT) || 3030);
-
-    console.log('⚡️ Bolt app is running!');
+    const port = Number(process.env.PORT) || 3030;
+    await app.start(port);
+    console.log(`app is running at PORT ${port}!`);
   })();
 }
+
+module.exports.handler = awsLambdaReceiver.toHandler();
