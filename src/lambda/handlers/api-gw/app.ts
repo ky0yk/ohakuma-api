@@ -18,7 +18,7 @@ app.delete('/bears/:id', bm.deleteBear);
 
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+  console.log(err);
   res.status(500).json('Internal Server Error');
 });
 
